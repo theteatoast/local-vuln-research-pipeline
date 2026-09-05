@@ -26,34 +26,8 @@
       "tokens_per_sec_hypothesis": 56.86502407732764,
       "json_compliance_deep_trace": 1.0,
       "json_compliance_hypothesis": 1.0
-    },
-    "ncmoe_0": {
-      "context_length": 131072,
-      "throughput_deep_trace": 55.08947007384157,
-      "throughput_hypothesis": 47.919678319553256
-    },
-    "ncmoe_8": {
-      "context_length": 131072,
-      "throughput_deep_trace": 53.41700353625523,
-      "throughput_hypothesis": 50.03211020344866
-    },
-    "ncmoe_16": {
-      "context_length": 131072,
-      "throughput_deep_trace": 49.648765220952654,
-      "throughput_hypothesis": 11.22173665351601
-    },
-    "ncmoe_24": {
-      "context_length": 131072,
-      "throughput_deep_trace": 21.373980537479902,
-      "throughput_hypothesis": 50.18523759359151
-    },
-    "ncmoe_32": {
-      "context_length": 131072,
-      "throughput_deep_trace": 49.646700079410756,
-      "throughput_hypothesis": 11.13324152123513
     }
   },
   "optimal_context_length": 131072,
-  "optimal_ncmoe": 0,
   "max_hypotheses": 4
 }

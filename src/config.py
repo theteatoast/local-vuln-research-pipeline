@@ -31,7 +31,6 @@ class Config:
         overrides: dict[str, Any] = {}
 
         if bench:
-            overrides["server_ncmoe"] = bench.get("optimal_ncmoe", 32)
             overrides["pipeline_max_hypotheses"] = bench.get("max_hypotheses", 5)
             overrides["server_context_length"] = bench.get("optimal_context_length", 32768)
 
@@ -71,10 +70,6 @@ class Config:
     @property
     def context_length(self) -> int:
         return self.get("server.context_length", 32768)
-
-    @property
-    def ncmoe(self) -> int:
-        return self.get("server.ncmoe", 32)
 
     @property
     def max_hypotheses(self) -> int:

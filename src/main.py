@@ -42,16 +42,19 @@ def main():
 
 
 def _cmd_setup():
+    from src.config import config
+
+    model_name = config.get("model.name", "the code model")
+    model_file = config.get("model.file", "models/model.gguf")
+    download_url = config.get("model.download_url", "https://huggingface.co/bartowski")
+
     print("=== Local Vuln Research System Setup ===\n")
     print("[1] Model download:")
-    print("    Download the GGUF model from HuggingFace:")
-    print("    https://huggingface.co/HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive")
-    print("    File: Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-IQ4_XS.gguf")
-    print("    Place it in: models/")
+    print(f"    Download the GGUF model ({model_name}) from HuggingFace:")
+    print(f"    {download_url}")
+    print(f"    Place it at: {model_file}")
     print()
-    print("    Or via huggingface-cli:")
-    print('    huggingface-cli download HauhauCS/Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive \\')
-    print('      Qwen3.6-35B-A3B-Uncensored-HauhauCS-Aggressive-IQ4_XS.gguf --local-dir models/')
+    print("    See config.yaml (model.file / model.draft_file) to switch models.")
     print()
     print("[2] Install Python dependencies:")
     print("    pip install -r requirements.txt")

@@ -169,6 +169,12 @@ class LLMClient:
         return None
 
     def _results_agree(self, a: dict, b: dict) -> bool:
+        # Path/memory validation results agree on their decision field (verdict).
+        # Fall back to vulnerability_class for prompts that emit that instead.
+        a_verdict = str(a.get("verdict", "")).lower()
+        b_verdict = str(b.get("verdict", "")).lower()
+        if a_verdict or b_verdict:
+            return a_verdict == b_verdict
         a_class = str(a.get("vulnerability_class", "") or a.get("class", ""))
         b_class = str(b.get("vulnerability_class", "") or b.get("class", ""))
         return a_class == b_class

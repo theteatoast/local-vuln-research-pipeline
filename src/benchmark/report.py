@@ -31,16 +31,6 @@ class BenchmarkReport:
         optimal_cl = self.r.get("optimal_context_length", 32768)
         print(f"\n  Optimal context: {optimal_cl:,} tokens")
 
-        print("\n  NCMOE Performance:")
-        print(f"  {'NCMOE':<8} {'Trace tok/s':<14} {'Hypothesis tok/s'}")
-        for key, data in sorted(tests.items()):
-            if key.startswith("ncmoe_"):
-                n = int(key.split("_")[1])
-                dt = data.get("throughput_deep_trace", 0)
-                hg = data.get("throughput_hypothesis", 0)
-                marker = " <-- optimal" if n == self.r.get("optimal_ncmoe") else ""
-                print(f"  {n:<8} {dt:<14.1f} {hg:<14.1f}{marker}")
-
         max_h = self.r.get("max_hypotheses", 5)
         print(f"\n  Max hypotheses per run: {max_h}")
 

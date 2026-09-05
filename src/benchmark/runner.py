@@ -91,26 +91,9 @@ class BenchmarkRunner:
             passed = self._test_context_length(cl, results)
             if passed:
                 max_usable_context = cl
-            elif cl >= 32768:
-                # Still record data for larger contexts even if JSON fails
-                pass
 
         results["optimal_context_length"] = max_usable_context
-
-        ncmoe_values = [0, 8, 16, 24, 32]
-        for ncmoe in ncmoe_values:
-            print(f"\n--- Testing ncmoe={ncmoe} ---")
-            self._test_ncmoe(ncmoe, max_usable_context, results)
-
-        throughputs = []
-        for n in ncmoe_values:
-            key = f"ncmoe_{n}"
-            if key in results["tests"]:
-                throughputs.append((n, results["tests"][key].get("throughput_deep_trace", 0)))
-
-        optimal_ncmoe = max(throughputs, key=lambda x: x[1])[0] if throughputs else 0
-        results["optimal_ncmoe"] = optimal_ncmoe
-        results["max_hypotheses"] = self._calc_max_hypotheses(results)
+        results["max_hypotheses"] = self._calc_max_hypotheses(results, max_usable_context)
 
         with open(BENCHMARK_RESULTS, "w") as f:
             json.dump(results, f, indent=2)
@@ -138,17 +121,7 @@ class BenchmarkRunner:
 
         return ok
 
-    def _test_ncmoe(self, ncmoe: int, cl: int, results: dict):
-        tps_dt = self._measure_throughput("deep_trace", cl, ncmoe=ncmoe)
-        tps_hg = self._measure_throughput("hypothesis_gen", cl, ncmoe=ncmoe)
-        results["tests"][f"ncmoe_{ncmoe}"] = {
-            "context_length": cl,
-            "throughput_deep_trace": tps_dt,
-            "throughput_hypothesis": tps_hg,
-        }
-        print(f"  Deep trace: {tps_dt:.1f} tok/s | Hypothesis: {tps_hg:.1f} tok/s")
-
-    def _measure_throughput(self, prompt_key: str, context_length: int, ncmoe: int = 0) -> float:
+    def _measure_throughput(self, prompt_key: str, context_length: int) -> float:
         prompt_data = BENCHMARK_PROMPTS.get(prompt_key)
         if not prompt_data or not self.client:
             return 0.0
@@ -157,8 +130,6 @@ class BenchmarkRunner:
         filled_user = f"{prompt_data['user']}\n\n[FILLER:{filler[:50000]}]" if filler else prompt_data["user"]
 
         extra_body: dict[str, Any] = {"top_k": 20, "presence_penalty": 0.0}
-        if ncmoe > 0:
-            extra_body["ncmoe"] = ncmoe
 
         try:
             start = time.perf_counter()
@@ -264,9 +235,9 @@ class BenchmarkRunner:
 
         return text.strip()
 
-    def _calc_max_hypotheses(self, results: dict) -> int:
-        key = f"ncmoe_{results.get('optimal_ncmoe', 0)}"
-        tps = results["tests"].get(key, {}).get("throughput_deep_trace", 30)
+    def _calc_max_hypotheses(self, results: dict, context_length: int = 32768) -> int:
+        key = f"context_{context_length}"
+        tps = results["tests"].get(key, {}).get("tokens_per_sec_deep_trace", 30)
         target_seconds = 180
         tokens_per_hypothesis = 2048
         tokens_budget = tps * target_seconds
